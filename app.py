@@ -4,19 +4,17 @@ from aiohttp import web
 import argparse
 import time
 
-class CashedRequest:
+class CachedRequest:
     def __init__(self, body, status, headers, timestamp):
         self.body = body
         self.status = status
         self.headers = headers
         self.timestamp = time.time()
 
-async def return_from_cash(url):
-    print("Returning from cash")
-    cashed_resp = cash[url]
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url):
-            return web.Response(body = cashed_resp.body, status = cashed_resp.status, headers = cashed_resp.headers)
+async def return_from_cache(url):
+    print("Returning from cache")
+    cached_resp = cache[url]
+    return web.Response(body = cached_resp.body, status = cached_resp.status, headers = cached_resp.headers)
 
 async def return_new(url):
     print("Returning from new")
@@ -28,16 +26,16 @@ async def return_new(url):
             logging.info(f"headers: {headers}")
             body = await resp.read()
 
-            rq = CashedRequest(body, resp.status, headers, time.time())
-            cash[url] = rq
+            rq = CachedRequest(body, resp.status, headers, time.time())
+            cache[url] = rq
 
             return web.Response(body=body, status=resp.status, headers=headers)
 
 async def proxy(request):
     target_url = request.query['url']
 
-    if target_url in cash and (time.time() - cash[target_url].timestamp) < 10.0:
-        return await return_from_cash(target_url)
+    if target_url in cache and (time.time() - cache[target_url].timestamp) < 10.0:
+        return await return_from_cache(target_url)
     else:
         return await return_new(target_url)
 
@@ -57,7 +55,7 @@ def main():
     args = parse_args()
     web.run_app(app, port=args.port, origin=args.origin)
 
-cash = {}
+cache = {}
 
 if __name__ == '__main__':
     main()
