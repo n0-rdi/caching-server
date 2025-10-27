@@ -26,7 +26,6 @@ async def fetch_from_origin(origin_url, cache, session):
         cached_resp = CachedRequest(body, resp.status, headers, time.time())
         cache[origin_url] = cached_resp
 
-        # Добавляем метку о том, что ответ с origin
         headers["X-Cache"] = "MISS"
 
         return web.Response(body=body, status=resp.status, headers=headers)
@@ -47,11 +46,9 @@ async def proxy_handler(request):
     ttl = request.app["ttl"]
     origin = request.app["origin"]
 
-    # Собираем путь к origin
     target_path = request.match_info["path"]
     origin_url = f"{origin}/{target_path}"
 
-    # Проверяем наличие кэша
     cached = cache.get(origin_url)
     if cached and (time.time() - cached.timestamp) < ttl:
         return await fetch_from_cache(origin_url, cache)
@@ -66,7 +63,6 @@ async def create_app(args):
     app["ttl"] = args.ttl
     app["origin"] = args.origin.rstrip("/")
 
-    # Добавляем маршрутизацию — проксировать все пути
     app.router.add_route("GET", "/{path:.*}", proxy_handler)
 
     async def close_session():
@@ -93,7 +89,6 @@ def parse_args():
 def main():
     args = parse_args()
 
-    # Очистка кэша по флагу
     if args.clear_cache:
         print("Cache cleared successfully (in-memory cache).")
         sys.exit(0)
