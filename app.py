@@ -90,7 +90,8 @@ def main():
     args = parse_args()
 
     if args.clear_cache:
-        print("Cache cleared successfully (in-memory cache).")
+        cache = diskcache.Cache("./cache")
+        cache.clear()
         sys.exit(0)
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
