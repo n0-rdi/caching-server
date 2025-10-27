@@ -77,7 +77,7 @@ def parse_args():
     parser.add_argument("--port", "-p", type=int, default=8080,
                         help="Port to run the caching proxy server")
     parser.add_argument("--origin", "-o", required=False,
-                        default="http://localhost:8080",
+                        default="http://localhost:3000",
                         help="Origin server to forward requests to")
     parser.add_argument("--ttl", "-t", type=float, default=600,
                         help="Cache lifetime in seconds")
