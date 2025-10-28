@@ -15,7 +15,7 @@ class CachedRequest:
 
 
 async def fetch_from_origin(origin_url, cache, session):
-    print(f"Fetching from origin: {origin_url}")
+    logging.info('Fetching from origin: %s', origin_url)
     async with session.get(origin_url) as resp:
         headers = dict(resp.headers)
         headers.pop("Transfer-Encoding", None)
@@ -32,7 +32,7 @@ async def fetch_from_origin(origin_url, cache, session):
 
 
 async def fetch_from_cache(origin_url, cache):
-    print(f"Returning from cache: {origin_url}")
+    logging.info('Fetching from cache: %s', origin_url)
     cached_resp = cache[origin_url]
     headers = dict(cached_resp.headers)
     headers["X-Cache"] = "HIT"
@@ -94,7 +94,7 @@ def main():
         cache.clear()
         sys.exit(0)
 
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+    logging.basicConfig(level=logging.INFO, filename="proxy.log", filemode="w", format="%(asctime)s [%(levelname)s] %(message)s")
     app = create_app(args)
     web.run_app(app, port=args.port)
 
