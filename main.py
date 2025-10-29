@@ -5,6 +5,9 @@ import argparse
 import time
 import sys
 import diskcache
+import proxy.utils as utils
+from proxy.utils import clear_cache
+
 
 class CachedRequest:
     def __init__(self, body, status, headers, timestamp):
@@ -58,7 +61,7 @@ async def proxy_handler(request):
 
 async def create_app(args):
     app = web.Application()
-    app["cache"] = diskcache.Cache("./cache")
+    app["cache"] = args["cache"]
     app["session"] = aiohttp.ClientSession()
     app["ttl"] = args.ttl
     app["origin"] = args.origin.rstrip("/")
@@ -83,6 +86,7 @@ def parse_args():
                         help="Cache lifetime in seconds")
     parser.add_argument("--clear-cache", action="store_true",
                         help="Clear the cache and exit")
+    parser.add_argument("--cache", "-c", required=False, default="./cache",)
     return parser.parse_args()
 
 
@@ -90,9 +94,7 @@ def main():
     args = parse_args()
 
     if args.clear_cache:
-        cache = diskcache.Cache("./cache")
-        cache.clear()
-        sys.exit(0)
+        clear_cache(args["cache"])
 
     logging.basicConfig(level=logging.INFO, filename="proxy.log", filemode="w", format="%(asctime)s [%(levelname)s] %(message)s")
     app = create_app(args)
