@@ -5,4 +5,4 @@ class CachedRequest:
     status: int
     headers: dict
     body: bytes
-    timestamp: int
+    timestamp: float

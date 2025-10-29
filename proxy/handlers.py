@@ -12,7 +12,7 @@ async def fetch_from_origin(origin_url, cache, session):
         headers.pop("Content-Length", None)
         body = await resp.read()
 
-        cached_resp = CachedRequest(body, resp.status, headers, time.time())
+        cached_resp = CachedRequest(body=body, status=resp.status, headers=headers, timestamp=time.time())
         cache[origin_url] = cached_resp
 
         headers["X-Cache"] = "MISS"
